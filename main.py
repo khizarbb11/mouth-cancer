@@ -23,7 +23,7 @@ app.add_middleware(
 )
 
 # Load the model locally from the repository
-MODEL_PATH = "app/Latest_oscc_model.h5"  # Path to the model in your repository
+MODEL_PATH = "Latest_oscc_model.h5"  # Path to the model in your repository
 print(f"Current working directory: {os.getcwd()}")
 
 # Check if model file exists
