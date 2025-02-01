@@ -24,6 +24,7 @@ app.add_middleware(
 
 # Load the model locally from the repository
 MODEL_PATH = "Latest_oscc_model.h5"  # Path to the model in your repository
+print(f"Current working directory: {os.getcwd()}")
 
 # Check if model file exists
 if not os.path.exists(MODEL_PATH):
@@ -31,8 +32,7 @@ if not os.path.exists(MODEL_PATH):
 
 # Load the model correctly
 try:
-    model = tf.keras.models.load_model("Latest_oscc_model.h5")
-    # model = load_model(MODEL_PATH)
+    model = load_model(MODEL_PATH)
     print("Model loaded successfully")
 except Exception as e:
     print(f"Error loading model: {e}")
