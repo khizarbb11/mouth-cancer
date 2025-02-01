@@ -3,4 +3,3 @@
 *.pyo
 .venv/
 .env
-*h5
