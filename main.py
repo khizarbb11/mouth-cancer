@@ -1,5 +1,4 @@
 import os
-
 import nest_asyncio
 import uvicorn
 from fastapi import FastAPI, UploadFile, File
@@ -9,7 +8,6 @@ import numpy as np
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
 import io
-import gdown
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -23,15 +21,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load the model from Google Drive
-MODEL_PATH = "Latest_oscc_model.h5"
-MODEL_URL = "https://drive.google.com/uc?id=14yqq0zwJcBtA8XXPeOXaXlPplbbPqOV-"  # Replace with your actual Google Drive file ID
+# Load the model locally from the repository
+MODEL_PATH = "Latest_oscc_model.h5"  # Path to the model in your repository
 
-# Download the model if not already present
+# Check if model file exists
 if not os.path.exists(MODEL_PATH):
-    print(f"Downloading model from {MODEL_URL}...")
-    gdown.download(MODEL_URL, MODEL_PATH, quiet=False)
-    print(f"Model downloaded to {MODEL_PATH}")
+    raise FileNotFoundError(f"Model file not found at {MODEL_PATH}")
 
 # Load the model correctly
 try:
