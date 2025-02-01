@@ -5,6 +5,7 @@ from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import numpy as np
+import tensorflow as tf
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
 import io
@@ -30,7 +31,8 @@ if not os.path.exists(MODEL_PATH):
 
 # Load the model correctly
 try:
-    model = load_model(MODEL_PATH)
+    model = tf.keras.models.load_model("Latest_oscc_model.h5")
+    # model = load_model(MODEL_PATH)
     print("Model loaded successfully")
 except Exception as e:
     print(f"Error loading model: {e}")
