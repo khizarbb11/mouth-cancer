@@ -30,7 +30,7 @@ if not os.path.exists(MODEL_PATH):
 
 # Load the model correctly
 try:
-    model = load_model(MODEL_PATH, compile=False)
+    model = load_model(MODEL_PATH)
     print("Model loaded successfully")
 except Exception as e:
     print(f"Error loading model: {e}")
