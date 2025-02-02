@@ -13,26 +13,29 @@ import io
 # Initialize FastAPI app
 app = FastAPI()
 
-# Enable CORS (Cross-Origin Resource Sharing) to prevent caching issues
+# Enable CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Load the model locally from the repository
-MODEL_PATH = "Latest_oscc_model.h5"  # Path to the model in your repository
+MODEL_PATH = os.path.join(os.getcwd(), "Latest_oscc_model.h5")
 print(f"Current working directory: {os.getcwd()}")
+print(f"Model path: {MODEL_PATH}")
 
 # Check if model file exists
 if not os.path.exists(MODEL_PATH):
     raise FileNotFoundError(f"Model file not found at {MODEL_PATH}")
+else:
+    print("Model file found.")
 
 # Load the model correctly
 try:
-    model = load_model("/Latest_oscc_model")
+    model = load_model(MODEL_PATH)
     print("Model loaded successfully")
 except Exception as e:
     print(f"Error loading model: {e}")
@@ -42,13 +45,12 @@ async def predict(file: UploadFile = File(...)):
     try:
         # Read and process the uploaded image
         contents = await file.read()
-        file.file.close()  # Ensure file is closed properly
+        file.file.close()
 
-        img = image.load_img(io.BytesIO(contents), target_size=(224, 224))  # Resize to model input size
+        img = image.load_img(io.BytesIO(contents), target_size=(224, 224))
         img_array = image.img_to_array(img)
-        img_array = np.expand_dims(img_array, axis=0) / 255.0  # Normalize pixel values
+        img_array = np.expand_dims(img_array, axis=0) / 255.0
 
-        # Debugging: Print first pixel values to confirm image changes
         print(f"First pixel value: {img_array[0, 0, 0, :]}")
 
         # Predict using the model
@@ -60,7 +62,6 @@ async def predict(file: UploadFile = File(...)):
             "confidence": float(prediction),
         }
 
-        # Return response with "no-cache" headers to ensure fresh results
         return JSONResponse(content=result, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
 
     except Exception as e:
@@ -72,8 +73,8 @@ async def predict(file: UploadFile = File(...)):
 # Allow FastAPI to run inside Jupyter Notebook
 nest_asyncio.apply()
 
-# Run FastAPI server properly
+# Run FastAPI server
 if __name__ == "__main__":
-    config = uvicorn.Config(app, host="0.0.0.0", port=8080, log_level="info")  # Use port 8080 instead
+    config = uvicorn.Config(app, host="0.0.0.0", port=8080, log_level="info")
     server = uvicorn.Server(config)
     server.run()
