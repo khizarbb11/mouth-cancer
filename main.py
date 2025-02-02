@@ -32,7 +32,7 @@ if not os.path.exists(MODEL_PATH):
 
 # Load the model correctly
 try:
-    model = load_model(MODEL_PATH)
+    model = load_model("app/Latest_oscc_model.h5")
     print("Model loaded successfully")
 except Exception as e:
     print(f"Error loading model: {e}")
