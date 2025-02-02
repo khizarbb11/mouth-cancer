@@ -8,6 +8,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
+import gdown
 import io
 
 # Initialize FastAPI app
@@ -23,9 +24,18 @@ app.add_middleware(
 )
 
 # Load the model locally from the repository
+
+# MODEL_PATH = "Latest_oscc_model.h5"
+MODEL_URL = "https://drive.google.com/uc?id=14yqq0zwJcBtA8XXPeOXaXlPplbbPqOV-"
 MODEL_PATH = os.path.join(os.getcwd(), "Latest_oscc_model.h5")
 print(f"Current working directory: {os.getcwd()}")
 print(f"Model path: {MODEL_PATH}")
+
+# Download the model if not already present
+# if not os.path.exists(MODEL_PATH):
+print(f"Downloading model from {MODEL_URL}...")
+gdown.download(MODEL_URL, MODEL_PATH, quiet=False)
+print(f"Model downloaded to {MODEL_PATH}")
 
 # Check if model file exists
 if not os.path.exists(MODEL_PATH):
