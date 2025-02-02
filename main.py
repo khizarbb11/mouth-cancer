@@ -1,15 +1,45 @@
 import os
-import nest_asyncio
-import uvicorn
+import io
+import requests
+import h5py
+import numpy as np
+import tensorflow as tf
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-import numpy as np
-import tensorflow as tf
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
-import gdown
-import io
+import uvicorn
+import nest_asyncio
+from huggingface_hub import hf_hub_download
+
+# Function to load model directly from a URL (e.g., Google Drive or Cloud Storage)
+def load_model_from_url(url):
+    response = requests.get(url)
+    if response.status_code == 200:
+        try:
+            with h5py.File(io.BytesIO(response.content), "r") as model_file:
+                return tf.keras.models.load_model(model_file)
+        except Exception as e:
+            raise Exception(f"Error loading model: {e}")
+    else:
+        raise Exception(f"Failed to fetch model: {response.status_code}")
+
+# **Option 1**: Load model from a cloud storage URL (e.g., Google Drive or custom cloud URL)
+# MODEL_URL = "https://your-cloud-link.com/Latest_oscc_model.h5"  # Update with your actual cloud model URL
+
+# print("Downloading and loading model...")
+# try:
+#     model = load_model_from_url(MODEL_URL)
+#     print("Model loaded successfully from URL")
+# except Exception as e:
+#     print(f"Error loading model: {e}")
+#     raise
+
+# **Option 2**: Load model from Hugging Face Hub
+MODEL_PATH = hf_hub_download(repo_id="khizarali07/my-oscc-model", filename="Latest_oscc_model.h5")
+model = tf.keras.models.load_model(MODEL_PATH)
+print("Model loaded successfully from Hugging Face Hub")
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -22,33 +52,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Load the model locally from the repository
-
-# MODEL_PATH = "Latest_oscc_model.h5"
-MODEL_URL = "https://drive.google.com/uc?id=14yqq0zwJcBtA8XXPeOXaXlPplbbPqOV-"
-MODEL_PATH = os.path.join(os.getcwd(), "Latest_oscc_model.h5")
-print(f"Current working directory: {os.getcwd()}")
-print(f"Model path: {MODEL_PATH}")
-
-# Download the model if not already present
-# if not os.path.exists(MODEL_PATH):
-print(f"Downloading model from {MODEL_URL}...")
-gdown.download(MODEL_URL, MODEL_PATH, quiet=False)
-print(f"Model downloaded to {MODEL_PATH}")
-
-# Check if model file exists
-if not os.path.exists(MODEL_PATH):
-    raise FileNotFoundError(f"Model file not found at {MODEL_PATH}")
-else:
-    print("Model file found.")
-
-# Load the model correctly
-try:
-    model = load_model(MODEL_PATH)
-    print("Model loaded successfully")
-except Exception as e:
-    print(f"Error loading model: {e}")
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
@@ -85,6 +88,4 @@ nest_asyncio.apply()
 
 # Run FastAPI server
 if __name__ == "__main__":
-    config = uvicorn.Config(app, host="0.0.0.0", port=8080, log_level="info")
-    server = uvicorn.Server(config)
-    server.run()
+    uvicorn.run(app, host="0.0.0.0", port=8080)

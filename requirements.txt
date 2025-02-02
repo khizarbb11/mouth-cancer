@@ -6,3 +6,4 @@ numpy
 Pillow
 gdown
 python-multipart
+huggingface_hub
